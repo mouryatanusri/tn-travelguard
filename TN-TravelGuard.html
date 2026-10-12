@@ -1,0 +1,825 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>TN-TravelGuard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+/* Layout: sticky top bar, one content column, permit rendered as a perforated pass, verdicts as checklists. Dark-first, matching the project's navy and cyan screens. */
+:root{
+  --bg:#070d1a; --surface:#0e1729; --surface2:#142039; --line:#24344f;
+  --fg:#e6edf8; --muted:#8fa0bd; --accent:#22c1e0; --accent-ink:#04222b;
+  --ok:#34d399; --warn:#fbbf24; --bad:#f87171;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#eef3f9; --surface:#ffffff; --surface2:#e5edf7; --line:#cbd8ea;
+    --fg:#0c1a30; --muted:#51627d; --accent:#0572a0; --accent-ink:#ffffff;
+    --ok:#0a7a52; --warn:#8a5600; --bad:#b32222; color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#eef3f9; --surface:#ffffff; --surface2:#e5edf7; --line:#cbd8ea;
+  --fg:#0c1a30; --muted:#51627d; --accent:#0572a0; --accent-ink:#ffffff;
+  --ok:#0a7a52; --warn:#8a5600; --bad:#b32222; color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 var(--body);padding-inline:0}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.05;margin:0;text-wrap:balance;letter-spacing:.01em}
+h1{font-size:clamp(2.4rem,6vw,4rem)}
+h2{font-size:clamp(1.8rem,3.4vw,2.4rem)}
+h3{font-size:1.35rem;font-weight:600}
+p{margin:0}
+.mono{font-family:var(--mono)}
+.eyebrow{font:600 .75rem/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.muted{color:var(--muted)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-in{max-width:1100px;margin:auto;padding:10px 16px;display:flex;align-items:center;gap:16px}
+.brand{display:flex;align-items:center;gap:9px;color:var(--fg);text-decoration:none;font:700 1.35rem/1 var(--display);letter-spacing:.03em;white-space:nowrap}
+.brand svg{width:26px;height:26px;color:var(--accent)}
+.navs{display:flex;gap:2px;overflow-x:auto;flex:1;min-width:0;scrollbar-width:none}
+.navs::-webkit-scrollbar{display:none}
+.navs a{color:var(--muted);text-decoration:none;padding:7px 11px;border-radius:6px;font-weight:500;white-space:nowrap}
+.navs a:hover{color:var(--fg)}
+.navs a.on{color:var(--fg);background:var(--surface2)}
+.iconbtn{background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;width:34px;height:34px;cursor:pointer;display:grid;place-items:center;flex:none}
+.iconbtn:hover{color:var(--fg)}
+
+main{max-width:1100px;margin:auto;padding:28px 16px 56px;min-height:70vh}
+.page-head{display:grid;gap:8px;margin-bottom:22px}
+.page-head p{color:var(--muted);max-width:60ch}
+
+/* surfaces */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;min-width:0}
+.card h3{margin-bottom:4px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))}
+.stack{display:grid;gap:16px}
+
+/* buttons */
+.btn{font:600 .95rem var(--body);border-radius:7px;border:1px solid var(--line);background:var(--surface2);color:var(--fg);padding:10px 16px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:6px 11px;font-size:.85rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+/* forms */
+.form{display:grid;gap:22px}
+.fs{display:grid;gap:14px;border:0;margin:0;padding:0;min-width:0}
+.fs legend{font:600 1.35rem var(--display);padding:0;margin-bottom:2px}
+.fs .sub{color:var(--muted);font-size:.88rem;margin-top:-10px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px}
+.field{display:grid;gap:5px;min-width:0}
+.field label{font-size:.8rem;font-weight:500;color:var(--muted)}
+input,select{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:10px 12px;width:100%;min-width:0}
+input::placeholder{color:color-mix(in srgb,var(--muted) 70%,transparent)}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+input.bad,select.bad{border-color:var(--bad)}
+.err{color:var(--bad);font-size:.8rem;min-height:0}
+.hint{font-size:.78rem;color:var(--muted)}
+
+/* pills */
+.pill{display:inline-flex;align-items:center;gap:6px;font:600 .72rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.ok{color:var(--ok)} .pill.warn{color:var(--warn)} .pill.bad{color:var(--bad)} .pill.mute{color:var(--muted)}
+
+/* home */
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:40px;align-items:center;padding-block:14px 30px}
+.hero-copy{display:grid;gap:18px;justify-items:start}
+.hero-copy p.lead{font-size:1.1rem;color:var(--muted);max-width:46ch}
+.section{display:grid;gap:18px;padding-block:34px;border-top:1px solid var(--line)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:0;counter-reset:s}
+.step{padding:6px 18px 6px 0;display:grid;gap:6px;align-content:start;counter-increment:s}
+.step::before{content:"Step " counter(s);font:600 .72rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.step h3{font-size:1.3rem}
+.step p{color:var(--muted);font-size:.9rem}
+.checks4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px}
+.chk{display:grid;gap:6px;padding-top:12px;border-top:2px solid var(--accent)}
+.chk p{color:var(--muted);font-size:.9rem}
+.scope{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+.scope ul{margin:8px 0 0;padding-left:18px;display:grid;gap:5px;color:var(--muted)}
+.scope li::marker{color:var(--accent)}
+
+/* permit pass */
+.ticket{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 250px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ticket::before,.ticket::after{content:"";position:absolute;right:239px;width:20px;height:20px;border-radius:50%;background:var(--bg);border:1px solid var(--line)}
+.ticket::before{top:-11px} .ticket::after{bottom:-11px}
+.t-main{padding:22px 24px;display:grid;gap:18px;min-width:0}
+.t-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.t-label{font:500 .68rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.t-id{font:600 clamp(1.5rem,4vw,2.1rem)/1.1 var(--mono);color:var(--accent);letter-spacing:.02em;word-break:break-all}
+.t-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:18px}
+.kv{display:grid;gap:11px;align-content:start}
+.kv h3{font-size:1.1rem;border-bottom:1px solid var(--line);padding-bottom:6px}
+.kv dl{margin:0;display:grid;gap:9px}
+.kv dt{font:500 .66rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.kv dd{margin:0;font-weight:500;overflow-wrap:anywhere}
+.kv dd.mono{font-family:var(--mono);font-size:.92rem}
+.stub{border-left:2px dashed var(--line);padding:22px;display:grid;gap:10px;justify-items:center;align-content:center;background:var(--surface2);text-align:center}
+.qrbox{background:#fff;padding:8px;border-radius:8px;line-height:0}
+.qrbox img,.qrbox canvas{width:190px;height:190px;max-width:100%;display:block}
+.stub small{color:var(--muted);font-size:.78rem}
+.stamp{font:700 1.15rem var(--display);letter-spacing:.12em;text-transform:uppercase;border:2px solid currentColor;border-radius:5px;padding:3px 10px;transform:rotate(-4deg);display:inline-block}
+.stamp.active{color:var(--ok)} .stamp.expired{color:var(--bad)} .stamp.upcoming{color:var(--warn)}
+.hero .ticket{grid-template-columns:minmax(0,1fr) 170px}
+.hero .ticket::before,.hero .ticket::after{right:159px}
+.hero .qrbox img,.hero .qrbox canvas{width:130px;height:130px}
+.hero .t-cols{grid-template-columns:1fr 1fr}
+.hero .t-main{padding:18px}
+
+/* tables */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th{font:500 .68rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--surface2);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.mono{font-family:var(--mono);font-size:.82rem;white-space:nowrap}
+.empty{padding:22px;color:var(--muted);text-align:center;border:1px dashed var(--line);border-radius:8px}
+
+/* stats */
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:4px}
+.stat .n{font:700 2.6rem/1 var(--display);font-variant-numeric:tabular-nums}
+.stat .l{font-size:.82rem;color:var(--muted)}
+.stat.ok .n{color:var(--ok)} .stat.acc .n{color:var(--accent)} .stat.bad .n{color:var(--bad)}
+.bars{display:grid;gap:10px}
+.bar{display:grid;grid-template-columns:minmax(90px,150px) 1fr 28px;gap:10px;align-items:center;font-size:.88rem}
+.bar .track{height:10px;background:var(--surface2);border-radius:5px;overflow:hidden}
+.bar .fill{height:100%;background:var(--accent);border-radius:5px}
+.bar b{font-variant-numeric:tabular-nums;text-align:right}
+.banner{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:12px 16px;color:var(--muted)}
+
+/* officer */
+.status3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px}
+.status3 .stat .n{font-size:1.5rem}
+.reader{margin-top:12px;border-radius:8px;overflow:hidden;background:var(--bg)}
+.reader:empty{display:none}
+.verdict{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.v-head{padding:18px 22px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.v-head .word{font:700 clamp(2rem,5vw,3rem)/1 var(--display);letter-spacing:.06em}
+.verdict.ok .v-head{background:color-mix(in srgb,var(--ok) 14%,var(--surface))} .verdict.ok .word{color:var(--ok)}
+.verdict.bad .v-head{background:color-mix(in srgb,var(--bad) 14%,var(--surface))} .verdict.bad .word{color:var(--bad)}
+.v-body{padding:18px 22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:22px}
+.clist{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.clist li{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start}
+.clist .m{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:700 .8rem var(--mono);border:1.5px solid currentColor}
+.clist .pass{color:var(--ok)} .clist .fail{color:var(--bad)} .clist .skip{color:var(--muted)}
+.clist b{display:block;font-weight:600;color:var(--fg)}
+.clist span.d{color:var(--muted);font-size:.85rem}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:8px;font-weight:500;z-index:50;max-width:calc(100% - 32px);box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.check{display:flex;gap:8px;align-items:center;font-size:.88rem;color:var(--muted)}
+.check input{width:auto}
+
+/* about */
+.layers{display:grid;gap:0}
+.layer{display:grid;grid-template-columns:150px 1fr;gap:16px;padding:14px 16px;border:1px solid var(--line);margin-top:-1px;background:var(--surface)}
+.layer:first-child{border-radius:10px 10px 0 0} .layer:last-child{border-radius:0 0 10px 10px}
+.layer b{font:700 1.15rem var(--display);color:var(--accent);letter-spacing:.03em}
+.layer span{color:var(--muted);font-size:.9rem}
+.phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px}
+.phase{padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface);display:grid;gap:6px;align-content:start}
+.phase .eyebrow{font-size:.68rem}
+.phase p{color:var(--muted);font-size:.88rem}
+footer{border-top:1px solid var(--line);padding:22px 16px calc(28px + env(safe-area-inset-bottom,0px));color:var(--muted);font-size:.85rem}
+footer div{max-width:1100px;margin:auto;display:flex;flex-wrap:wrap;gap:6px 24px;justify-content:space-between}
+
+@media (max-width:820px){
+  .hero{grid-template-columns:1fr;gap:26px}
+  .ticket{grid-template-columns:1fr}
+  .ticket::before,.ticket::after{display:none}
+  .stub{border-left:0;border-top:2px dashed var(--line)}
+  .hero .ticket{grid-template-columns:1fr}
+  .layer{grid-template-columns:1fr;gap:2px}
+}
+@media (max-width:520px){
+  .top-in{gap:10px}
+  .brand span{display:none}
+  .bar{grid-template-columns:90px 1fr 24px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="top"><div class="top-in">
+  <a class="brand" href="#home" data-go="home" aria-label="TN-TravelGuard home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5 4.5 5.5v6c0 4.6 3.1 8.3 7.5 10 4.4-1.7 7.5-5.4 7.5-10v-6L12 2.5Z"/><path d="m8.6 12.2 2.4 2.4 4.4-4.8"/></svg>
+    <span>TN-TravelGuard</span>
+  </a>
+  <nav class="navs" id="nav" aria-label="Main">
+    <a href="#home" data-go="home">Home</a>
+    <a href="#apply" data-go="apply">Apply</a>
+    <a href="#permits" data-go="permits">My permits</a>
+    <a href="#officer" data-go="officer">Officer</a>
+    <a href="#admin" data-go="admin">Admin</a>
+    <a href="#about" data-go="about">About</a>
+  </nav>
+  <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch colour theme" title="Switch colour theme">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+</div></header>
+
+<main id="view"></main>
+<footer><div>
+  <span>TN-TravelGuard · Smart digital permit and checkpoint verification for Tamil Nadu</span>
+  <span>Design Project 3 (ECS51803) · Mourya Tanusri S · Hindustan Institute of Technology and Science</span>
+</div></footer>
+<div id="toastHost" aria-live="polite"></div>
+
+<script>
+/* ---------- helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const iso=d=>d.toLocaleDateString('en-CA');
+const today=()=>iso(new Date());
+const addDays=(n)=>{const d=new Date();d.setDate(d.getDate()+n);return iso(d)};
+const fmtDate=s=>{if(!s)return'–';const[y,m,d]=s.split('-');return `${d} ${MON[+m-1]} ${y}`};
+const fmtTime=ts=>new Date(ts).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+const maskId=s=>s.length>4?'•'.repeat(s.length-4)+s.slice(-4):s;
+
+const DESTINATIONS=['Kodaikanal','Ooty (Udhagamandalam)','Coonoor','Yercaud','Valparai','Kolli Hills','Yelagiri','Kanyakumari','Rameswaram'];
+const PURPOSES=['Tourism','Business','Medical','Education','Family visit','Pilgrimage','Goods transport','Other'];
+const CHECKPOINTS=['Ooty Checkpoint','Kodaikanal Checkpoint','Yercaud Checkpoint','Valparai Checkpoint','Kanyakumari Checkpoint','Walayar Checkpoint','Hosur Checkpoint'];
+
+/* ---------- storage (browser local storage, in-memory fallback) ---------- */
+const mem={};
+const S={
+  get(k){try{const v=localStorage.getItem(k);if(v!==null)return v}catch(e){}return k in mem?mem[k]:null},
+  set(k,v){mem[k]=v;try{localStorage.setItem(k,v)}catch(e){}},
+  del(k){delete mem[k];try{localStorage.removeItem(k)}catch(e){}},
+  keys(p){const s=new Set(Object.keys(mem).filter(k=>k.startsWith(p)));try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(p))s.add(k)}}catch(e){}return[...s]}
+};
+const J=(k,d)=>{try{const v=S.get(k);return v?JSON.parse(v):d}catch(e){return d}};
+const DB={
+  permits(){return S.keys('tg:permit:').map(k=>J(k,null)).filter(Boolean).sort((a,b)=>b.createdAt-a.createdAt)},
+  permit(id){return J('tg:permit:'+id,null)},
+  savePermit(p){S.set('tg:permit:'+p.id,JSON.stringify(p))},
+  entries(){return J('tg:entries',[])},
+  flags(){return J('tg:flags',[])},
+  addEntry(e){const a=DB.entries();a.unshift(e);S.set('tg:entries',JSON.stringify(a))},
+  addFlag(f){const a=DB.flags();a.unshift(f);S.set('tg:flags',JSON.stringify(a))},
+  clear(onlySample){
+    if(onlySample){
+      S.keys('tg:permit:').forEach(k=>{const p=J(k,null);if(p&&p.sample)S.del(k)});
+      S.set('tg:entries',JSON.stringify(DB.entries().filter(x=>!x.sample)));
+      S.set('tg:flags',JSON.stringify(DB.flags().filter(x=>!x.sample)));
+    }else{
+      S.keys('tg:permit:').forEach(k=>S.del(k));S.set('tg:entries','[]');S.set('tg:flags','[]');
+    }
+  },
+  hasSample(){return DB.permits().some(p=>p.sample)}
+};
+function newId(){
+  const y=new Date().getFullYear();let id;
+  do{id=`TN-${y}-${Math.floor(10000+Math.random()*90000)}`}while(DB.permit(id));
+  return id;
+}
+const statusOf=p=>{const t=today();return t<p.from?'upcoming':t>p.to?'expired':'active'};
+const qrPayload=(p,over)=>JSON.stringify({id:p.id,name:p.name,dest:(over&&over.dest)||p.dest});
+
+/* sample records, loaded once so the dashboard has something to show */
+function seed(){
+  if(S.get('tg:seeded'))return;
+  S.set('tg:seeded','1');
+  if(DB.permits().length)return;
+  const now=Date.now(),H=36e5;
+  const mk=(id,name,phone,gid,veh,dest,purpose,from,to,age)=>DB.savePermit({id,name,phone,gid,vehicle:veh,dest,purpose,from,to,idStatus:'ID number on record (demo)',createdAt:now-age*H,sample:true});
+  mk('TN-2026-70255','Arun Kumar','9878543210','DEMO98765','TN 38 XY 5678','Kodaikanal','Business','2026-07-07','2027-07-07',120);
+  mk('TN-2026-41826','Meena Lakshmi R','9944120387','DEMO44120','TN 09 BK 2210','Ooty (Udhagamandalam)','Tourism',addDays(-10),addDays(20),90);
+  mk('TN-2026-33091','Karthik Subramanian','9840011276','DEMO33091','TN 22 CD 7741','Yercaud','Family visit','2026-01-05','2026-03-05',60);
+  mk('TN-2026-58214','Fathima Begum','9790456123','DEMO58214','TN 72 AF 1903','Kanyakumari','Pilgrimage',addDays(45),addDays(52),30);
+  mk('TN-2026-62740','Sathish Kumar','9677834410','DEMO62740','TN 66 GH 4021','Valparai','Education',addDays(-3),addDays(90),12);
+  const ent=(i,pid,name,dest,cp,m,ago)=>({id:'e'+i,permitId:pid,name,dest,checkpoint:cp,method:m,ts:now-ago*H,sample:true});
+  S.set('tg:entries',JSON.stringify([
+    ent(3,'TN-2026-62740','Sathish Kumar','Valparai','Valparai Checkpoint','QR',3),
+    ent(2,'TN-2026-41826','Meena Lakshmi R','Ooty (Udhagamandalam)','Ooty Checkpoint','QR',20),
+    ent(1,'TN-2026-70255','Arun Kumar','Kodaikanal','Kodaikanal Checkpoint','Manual ID',44)
+  ]));
+  S.set('tg:flags',JSON.stringify([
+    {id:'f3',permitId:'TN-2026-41826',reason:'Duplicate entry at this checkpoint',checkpoint:'Ooty Checkpoint',method:'QR',ts:now-19*H,sample:true},
+    {id:'f2',permitId:'TN-2026-33091',reason:'Permit expired on 05 Mar 2026',checkpoint:'Yercaud Checkpoint',method:'Manual ID',ts:now-30*H,sample:true},
+    {id:'f1',permitId:'TN-2026-99999',reason:'Permit ID not found',checkpoint:'Ooty Checkpoint',method:'Manual ID',ts:now-52*H,sample:true}
+  ]));
+}
+
+/* ---------- verification logic ---------- */
+function verify(raw,method,checkpoint){
+  let payload=null,id=String(raw||'').trim();
+  try{const o=JSON.parse(id);if(o&&typeof o==='object'&&o.id){payload=o;id=String(o.id)}}catch(e){}
+  id=id.toUpperCase().replace(/\s+/g,'');
+  const viaQR=method==='QR';
+  const res={id,method:payload?'QR':'Manual ID',checkpoint,checks:[],permit:null,ok:false,reason:'',qr:'Not used'};
+  if(viaQR&&!payload){
+    res.reason='QR code format not recognised';res.id=String(raw).slice(0,40);
+    res.checks=[
+      {label:'Permit on record',state:'fail',detail:'This QR does not carry a TN-TravelGuard permit.'},
+      {label:'QR details match',state:'skip',detail:'Not checked.'},
+      {label:'Within validity dates',state:'skip',detail:'Not checked.'},
+      {label:'First entry at this checkpoint',state:'skip',detail:'Not checked.'}];
+    res.qr='Unrecognised';return finish(res);
+  }
+  const p=DB.permit(id);
+  if(!p){
+    res.reason='Permit ID not found';
+    res.checks=[
+      {label:'Permit on record',state:'fail',detail:`No permit ${id||'(blank)'} exists in this browser's records.`},
+      {label:'QR details match',state:'skip',detail:'Not checked.'},
+      {label:'Within validity dates',state:'skip',detail:'Not checked.'},
+      {label:'First entry at this checkpoint',state:'skip',detail:'Not checked.'}];
+    res.qr=payload?'Unmatched':'Not used';return finish(res);
+  }
+  res.permit=p;
+  const fails=[];
+  res.checks.push({label:'Permit on record',state:'pass',detail:`${p.id} issued to ${p.name}.`});
+  if(payload){
+    const same=String(payload.name||'').trim().toLowerCase()===p.name.trim().toLowerCase()&&String(payload.dest||'').trim().toLowerCase()===p.dest.trim().toLowerCase();
+    if(same){res.checks.push({label:'QR details match',state:'pass',detail:'Name and destination in the QR agree with the record.'});res.qr='Matched'}
+    else{
+      const bits=[];
+      if(String(payload.name||'').trim().toLowerCase()!==p.name.trim().toLowerCase())bits.push(`name "${payload.name??'–'}" vs "${p.name}"`);
+      if(String(payload.dest||'').trim().toLowerCase()!==p.dest.trim().toLowerCase())bits.push(`destination "${payload.dest??'–'}" vs "${p.dest}"`);
+      res.checks.push({label:'QR details match',state:'fail',detail:'Mismatch: '+bits.join('; ')+'.'});
+      fails.push('QR details do not match the permit record');res.qr='Mismatch';
+    }
+  }else res.checks.push({label:'QR details match',state:'skip',detail:'Permit ID entered by hand, so there is no QR data to compare.'});
+  const t=today();
+  if(t<p.from){res.checks.push({label:'Within validity dates',state:'fail',detail:`Valid from ${fmtDate(p.from)}. Today is ${fmtDate(t)}.`});fails.push(`Permit not valid until ${fmtDate(p.from)}`)}
+  else if(t>p.to){res.checks.push({label:'Within validity dates',state:'fail',detail:`Expired on ${fmtDate(p.to)}.`});fails.push(`Permit expired on ${fmtDate(p.to)}`)}
+  else res.checks.push({label:'Within validity dates',state:'pass',detail:`${fmtDate(p.from)} to ${fmtDate(p.to)}.`});
+  const dup=DB.entries().find(e=>e.permitId===p.id&&e.checkpoint===checkpoint);
+  if(dup){res.checks.push({label:'First entry at this checkpoint',state:'fail',detail:`Already recorded here on ${fmtTime(dup.ts)}.`});fails.push('Duplicate entry at this checkpoint')}
+  else res.checks.push({label:'First entry at this checkpoint',state:'pass',detail:'No earlier entry for this permit here. Other checkpoints do not count.'});
+  if(fails.length)res.reason=fails[0];
+  return finish(res,fails);
+}
+function finish(res,fails){
+  res.ok=!res.reason;
+  const base={permitId:res.id,checkpoint:res.checkpoint,method:res.method,ts:Date.now()};
+  if(res.ok)DB.addEntry({...base,id:'e'+base.ts,name:res.permit.name,dest:res.permit.dest});
+  else DB.addFlag({...base,id:'f'+base.ts,reason:res.reason+(fails&&fails.length>1?` (+${fails.length-1} more)`:'')});
+  return res;
+}
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(msg){
+  const h=$('#toastHost');h.innerHTML=`<div class="toast" role="status">${esc(msg)}</div>`;
+  clearTimeout(toastT);toastT=setTimeout(()=>h.innerHTML='',2800);
+}
+async function copy(text,label){
+  try{await navigator.clipboard.writeText(text);toast(label+' copied')}
+  catch(e){
+    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();
+    let ok=false;try{ok=document.execCommand('copy')}catch(_){}
+    ta.remove();toast(ok?label+' copied':'Copy is blocked here. Select the text and copy it by hand.');
+  }
+}
+
+/* ---------- permit ticket ---------- */
+function ticket(p,opts={}){
+  const st=statusOf(p);
+  const stLabel={active:'Permit active',expired:'Permit expired',upcoming:'Not yet valid'}[st];
+  const pillCls={active:'ok',expired:'bad',upcoming:'warn'}[st];
+  return `<article class="ticket" aria-label="Digital permit ${esc(p.id)}">
+    <div class="t-main">
+      <div class="t-top">
+        <div><div class="t-label">Permit ID</div><div class="t-id">${esc(p.id)}</div></div>
+        <span class="pill ${pillCls}">${stLabel}</span>
+      </div>
+      <div class="t-cols">
+        <div class="kv"><h3>Traveler</h3><dl>
+          <div><dt>Full name</dt><dd>${esc(p.name)}</dd></div>
+          <div><dt>Phone</dt><dd class="mono">${esc(p.phone)}</dd></div>
+          <div><dt>Government ID</dt><dd class="mono">${esc(p.gid)}</dd></div>
+          <div><dt>Vehicle</dt><dd class="mono">${esc(p.vehicle)}</dd></div></dl></div>
+        <div class="kv"><h3>Journey</h3><dl>
+          <div><dt>Destination</dt><dd>${esc(p.dest)}</dd></div>
+          <div><dt>Purpose</dt><dd>${esc(p.purpose)}</dd></div>
+          <div><dt>Valid from</dt><dd class="mono">${esc(p.from)}</dd></div>
+          <div><dt>Valid to</dt><dd class="mono">${esc(p.to)}</dd></div></dl></div>
+      </div>
+    </div>
+    <div class="stub">
+      <span class="stamp ${st}">${st}</span>
+      <div class="qrbox" data-payload="${esc(qrPayload(p))}" role="img" aria-label="QR code for ${esc(p.id)}"></div>
+      <small>Show this QR at the checkpoint</small>
+    </div>
+  </article>`;
+}
+function drawQRs(root=document){
+  $$('.qrbox[data-payload]',root).forEach(b=>{
+    b.innerHTML='';
+    try{new QRCode(b,{text:b.dataset.payload,width:190,height:190,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M})}
+    catch(e){b.innerHTML='<small style="color:#000;line-height:1.3;display:block;padding:8px">QR library did not load. Reload the page.</small>'}
+  });
+}
+
+/* ---------- pages ---------- */
+const pages={};
+
+pages.home=()=>{
+  const demo=DB.permit('TN-2026-70255')||{id:'TN-2026-70255',name:'Arun Kumar',phone:'9878543210',gid:'DEMO98765',vehicle:'TN 38 XY 5678',dest:'Kodaikanal',purpose:'Business',from:'2026-07-07',to:'2027-07-07'};
+  return `
+  <section class="hero">
+    <div class="hero-copy">
+      <span class="eyebrow">Tamil Nadu · Digital permits</span>
+      <h1>A permit that checks itself at the gate.</h1>
+      <p class="lead">Travelers register once and receive a QR permit. Officers scan it, or type the permit ID, and see in seconds whether the pass is real, current and unused at that checkpoint. Every entry and every refusal is kept on record.</p>
+      <div class="row">
+        <a class="btn primary" href="#apply" data-go="apply">Apply for a permit</a>
+        <a class="btn" href="#officer" data-go="officer">Open officer portal</a>
+      </div>
+    </div>
+    <div>${ticket(demo)}</div>
+  </section>
+
+  <section class="section">
+    <div class="page-head"><span class="eyebrow">Workflow</span><h2>From registration to the dashboard</h2></div>
+    <div class="steps">
+      <div class="step"><h3>Register</h3><p>The traveler enters identity, vehicle, destination, purpose and validity dates.</p></div>
+      <div class="step"><h3>Permit issued</h3><p>A unique ID such as TN-2026-70255 is created and stored with the record.</p></div>
+      <div class="step"><h3>Present</h3><p>The permit page shows a QR carrying the ID, name and destination.</p></div>
+      <div class="step"><h3>Verify</h3><p>The officer scans the QR or types the ID. Four checks run at once.</p></div>
+      <div class="step"><h3>Record</h3><p>Cleared entries and flagged cases are logged for the administrator.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="page-head"><span class="eyebrow">Verification rules</span><h2>Four checks on every presentation</h2></div>
+    <div class="checks4">
+      <div class="chk"><h3>Permit on record</h3><p>The ID must match a stored permit. Unknown IDs are rejected and flagged.</p></div>
+      <div class="chk"><h3>QR details match</h3><p>The name and destination in the QR are compared with the stored record.</p></div>
+      <div class="chk"><h3>Within validity</h3><p>Today must fall between the start and end dates. Expired and not-yet-valid permits are flagged.</p></div>
+      <div class="chk"><h3>First entry here</h3><p>The same permit shown twice at one checkpoint is a duplicate. A different checkpoint is allowed.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="page-head"><span class="eyebrow">Three roles</span><h2>Who uses what</h2></div>
+    <div class="grid g3">
+      <div class="card stack"><div><h3>Traveler</h3><p class="muted">Fill in one form, get a digital permit with a QR code, and keep it on your phone.</p></div><a class="btn" href="#apply" data-go="apply">Apply now</a></div>
+      <div class="card stack"><div><h3>Checkpoint officer</h3><p class="muted">Scan a QR, upload a QR image, or enter the permit ID. The verdict lists each check.</p></div><a class="btn" href="#officer" data-go="officer">Verify a permit</a></div>
+      <div class="card stack"><div><h3>Administrator</h3><p class="muted">See permits, checkpoint entries, flagged cases and destination totals on one screen.</p></div><a class="btn" href="#admin" data-go="admin">Open dashboard</a></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="page-head"><span class="eyebrow">Prototype scope</span><h2>What this version does and does not do</h2></div>
+    <div class="scope">
+      <div class="card"><h3>Working here</h3><ul>
+        <li>Registration with field validation</li><li>Unique permit ID and QR code</li><li>QR and manual verification</li><li>Validity, mismatch and duplicate detection</li><li>Entry and flagged-case logs, admin dashboard</li></ul></div>
+      <div class="card"><h3>Left for a later version</h3><ul>
+        <li>Biometric or facial identity checks</li><li>A shared central database across devices</li><li>Digitally signed, tamper-proof QR codes</li><li>OTP login and role-based access</li><li>Real-time analytics across checkpoints</li></ul></div>
+    </div>
+    <p class="muted">Records live in this browser's local storage, so permits created on one device are not visible on another. Do not enter real identity numbers.</p>
+  </section>`;
+};
+
+pages.apply=()=>`
+  <div class="page-head"><span class="eyebrow">Traveler</span><h1>Apply for a digital permit</h1><p>Register the journey. A permit ID and QR code are created as soon as you submit.</p></div>
+  <form class="form card" id="applyForm" novalidate>
+    <fieldset class="fs"><legend>1. Traveler information</legend><div class="sub">Details of the person travelling.</div>
+      <div class="fields">
+        <div class="field"><label for="f_name">Full name</label><input id="f_name" name="name" autocomplete="name" placeholder="Enter full name"><div class="err" data-e="name"></div></div>
+        <div class="field"><label for="f_phone">Phone number</label><input id="f_phone" name="phone" inputmode="numeric" maxlength="10" placeholder="9876543210"><div class="err" data-e="phone"></div></div>
+        <div class="field"><label for="f_gid">Government ID number</label><input id="f_gid" name="gid" placeholder="Enter ID number"><div class="err" data-e="gid"></div><div class="hint">Use a dummy value such as DEMO12345.</div></div>
+        <div class="field"><label for="f_vehicle">Vehicle number</label><input id="f_vehicle" name="vehicle" placeholder="TN 01 AB 1234" style="text-transform:uppercase"><div class="err" data-e="vehicle"></div></div>
+        <div class="field"><label for="f_selfie">Selfie (optional)</label><input id="f_selfie" name="selfie" type="file" accept="image/*"><div class="hint">Demo only. The photo is not stored or compared.</div></div>
+      </div>
+    </fieldset>
+    <fieldset class="fs"><legend>2. Journey information</legend><div class="sub">Where you are going and for how long.</div>
+      <div class="fields">
+        <div class="field"><label for="f_dest">Destination</label><select id="f_dest" name="dest"><option value="">Select destination</option>${DESTINATIONS.map(d=>`<option>${esc(d)}</option>`).join('')}</select><div class="err" data-e="dest"></div></div>
+        <div class="field"><label for="f_purpose">Purpose of travel</label><select id="f_purpose" name="purpose"><option value="">Select purpose</option>${PURPOSES.map(d=>`<option>${esc(d)}</option>`).join('')}</select><div class="err" data-e="purpose"></div></div>
+        <div class="field"><label for="f_from">Travel from</label><input id="f_from" name="from" type="date" value="${today()}"><div class="err" data-e="from"></div></div>
+        <div class="field"><label for="f_to">Travel to</label><input id="f_to" name="to" type="date" value="${addDays(30)}"><div class="err" data-e="to"></div></div>
+      </div>
+    </fieldset>
+    <div class="row"><button class="btn primary" type="submit">Generate permit</button><span class="hint">Your permit is saved in this browser.</span></div>
+  </form>`;
+
+pages.permits=()=>{
+  const list=DB.permits();
+  return `<div class="page-head"><span class="eyebrow">Traveler</span><h1>My permits</h1><p>Every permit stored in this browser. Open one to show its QR code at a checkpoint.</p></div>
+  ${list.length?`<div class="tw"><table><thead><tr><th>Permit ID</th><th>Traveler</th><th>Destination</th><th>Valid</th><th>Status</th><th></th></tr></thead><tbody>
+    ${list.map(p=>{const s=statusOf(p);return `<tr><td class="mono">${esc(p.id)}</td><td>${esc(p.name)}${p.sample?' <span class="pill mute">Sample</span>':''}</td><td>${esc(p.dest)}</td><td class="mono">${esc(p.from)} → ${esc(p.to)}</td><td><span class="pill ${{active:'ok',expired:'bad',upcoming:'warn'}[s]}">${s}</span></td><td><a class="btn sm" href="#${esc(p.id)}" data-go="${esc(p.id)}">Open</a></td></tr>`}).join('')}
+  </tbody></table></div>`:`<div class="empty">No permits yet. <a href="#apply" data-go="apply">Apply for the first one.</a></div>`}`;
+};
+
+pages.permit=(id)=>{
+  const p=DB.permit(id);
+  if(!p)return `<div class="page-head"><h1>Permit not found</h1><p>No permit ${esc(id)} is stored in this browser. Permits are not shared between devices.</p></div><a class="btn" href="#permits" data-go="permits">See my permits</a>`;
+  const hist=[...DB.entries().filter(e=>e.permitId===p.id).map(e=>({...e,k:'Cleared'})),...DB.flags().filter(e=>e.permitId===p.id).map(e=>({...e,k:'Flagged'}))].sort((a,b)=>b.ts-a.ts);
+  return `<div class="page-head"><span class="eyebrow">Digital permit</span><h1>Digital Inner Line Permit</h1><p>Show the QR on the right to the checkpoint officer, or read out the permit ID.</p></div>
+  <div class="stack">
+    ${ticket(p)}
+    <div class="row">
+      <button class="btn" data-copy="${esc(p.id)}" data-label="Permit ID" type="button">Copy permit ID</button>
+      <button class="btn" data-copy="${esc(qrPayload(p))}" data-label="QR data" type="button">Copy QR data</button>
+      <a class="btn" href="#officer" data-go="officer">Test at officer portal</a>
+      <a class="btn" href="#permits" data-go="permits">All permits</a>
+    </div>
+    <div class="card"><h3>Checkpoint history</h3>
+      ${hist.length?`<div class="tw" style="margin-top:10px"><table><thead><tr><th>When</th><th>Checkpoint</th><th>Result</th><th>Detail</th></tr></thead><tbody>${hist.map(h=>`<tr><td class="mono">${fmtTime(h.ts)}</td><td>${esc(h.checkpoint)}</td><td><span class="pill ${h.k==='Cleared'?'ok':'bad'}">${h.k}</span></td><td>${esc(h.reason||('Entry via '+h.method))}</td></tr>`).join('')}</tbody></table></div>`:`<p class="muted" style="margin-top:6px">This permit has not been presented at a checkpoint yet.</p>`}
+    </div>
+  </div>`;
+};
+
+/* officer */
+const officer={checkpoint:CHECKPOINTS[0],result:null,scanner:null,session:[]};
+pages.officer=()=>{
+  const permits=DB.permits();
+  return `<div class="page-head"><span class="eyebrow">Checkpoint officer</span><h1>Officer verification portal</h1><p>Scan a traveler's permit QR or verify a permit ID by hand. Each presentation is checked and logged.</p></div>
+  <div class="stack">
+    <div class="card"><div class="field" style="max-width:340px"><label for="cp">Checkpoint on duty</label><select id="cp">${CHECKPOINTS.map(c=>`<option${c===officer.checkpoint?' selected':''}>${esc(c)}</option>`).join('')}</select></div></div>
+    <div class="grid g2">
+      <div class="card"><h3>QR permit scanner</h3><p class="muted">Point the camera at the traveler's permit QR, or upload a screenshot of it.</p>
+        <div class="row" style="margin-top:14px">
+          <button class="btn primary" id="camBtn" type="button">Start camera scanner</button>
+          <label class="btn" for="qrFile" style="cursor:pointer">Upload QR image</label>
+          <input id="qrFile" type="file" accept="image/*" hidden>
+        </div>
+        <div id="reader" class="reader"></div>
+        <p class="hint" id="scanMsg" style="margin-top:10px" aria-live="polite"></p>
+      </div>
+      <div class="card"><h3>Manual verification</h3><p class="muted">Enter a permit ID if the camera is unavailable.</p>
+        <form id="manualForm" class="stack" style="margin-top:14px" novalidate>
+          <div class="field"><label for="manualId">Permit ID</label><input id="manualId" class="mono" placeholder="Example: TN-2026-70255" autocomplete="off" style="text-transform:uppercase"></div>
+          <button class="btn primary" type="submit">Verify</button>
+        </form>
+      </div>
+    </div>
+    <div class="card"><h3>Present a stored permit</h3><p class="muted">Sends a stored permit's QR data through the same checks, as a scan would. Tick the box to test a QR whose destination was altered.</p>
+      <form id="presentForm" class="row" style="margin-top:14px" novalidate>
+        <div class="field" style="min-width:min(100%,280px);flex:1"><label for="presentSel">Permit</label><select id="presentSel">${permits.length?permits.map(p=>`<option value="${esc(p.id)}">${esc(p.id)} · ${esc(p.name)}</option>`).join(''):'<option value="">No permits yet</option>'}</select></div>
+        <label class="check"><input type="checkbox" id="tamper"> Alter destination in QR</label>
+        <button class="btn" type="submit"${permits.length?'':' disabled'}>Present QR</button>
+      </form>
+    </div>
+    <div class="status3" id="status3"></div>
+    <div id="result"></div>
+    <div id="sessionLog"></div>
+  </div>`;
+};
+function renderOfficerResult(){
+  const r=officer.result;
+  const st=r?{qr:r.qr,id:r.permit?(r.permit.idStatus):'Not found',cp:r.ok?'Cleared':'Flagged'}:{qr:'Waiting',id:'Waiting',cp:'Waiting'};
+  const cls=r?(r.ok?'ok':'bad'):'';
+  $('#status3').innerHTML=`
+    <div class="stat"><span class="l">QR status</span><span class="n ${r&&r.qr==='Matched'?'':''}" style="${r&&(r.qr==='Mismatch'||r.qr==='Unrecognised'||r.qr==='Unmatched')?'color:var(--bad)':r&&r.qr==='Matched'?'color:var(--ok)':''}">${esc(st.qr)}</span></div>
+    <div class="stat"><span class="l">Identity status (demo)</span><span class="n" style="font-size:1.1rem;line-height:1.3">${esc(st.id)}</span></div>
+    <div class="stat ${cls}"><span class="l">Checkpoint status</span><span class="n">${esc(st.cp)}</span></div>`;
+  $('#result').innerHTML=r?`
+    <section class="verdict ${r.ok?'ok':'bad'}" aria-live="polite">
+      <div class="v-head"><span class="word">${r.ok?'CLEARED':'FLAGGED'}</span>
+        <div><div style="font-weight:600">${r.ok?'Entry recorded at '+esc(r.checkpoint):esc(r.reason)}</div>
+        <div class="muted mono" style="font-size:.82rem">${esc(r.id)} · via ${esc(r.method)} · ${esc(r.checkpoint)}</div></div></div>
+      <div class="v-body">
+        <ul class="clist">${r.checks.map(c=>`<li><span class="m ${c.state}">${c.state==='pass'?'✓':c.state==='fail'?'×':'–'}</span><div><b>${esc(c.label)}</b><span class="d">${esc(c.detail)}</span></div></li>`).join('')}</ul>
+        ${r.permit?`<div class="kv"><dl>
+          <div><dt>Traveler</dt><dd>${esc(r.permit.name)}</dd></div>
+          <div><dt>Destination</dt><dd>${esc(r.permit.dest)} · ${esc(r.permit.purpose)}</dd></div>
+          <div><dt>Vehicle</dt><dd class="mono">${esc(r.permit.vehicle)}</dd></div>
+          <div><dt>Validity</dt><dd class="mono">${esc(r.permit.from)} → ${esc(r.permit.to)}</dd></div>
+          <div><dt>Record</dt><dd>${r.ok?'Checkpoint entry saved':'Flagged case saved'}</dd></div></dl></div>`
+        :`<div class="muted">No permit details available. A flagged case was saved with the submitted value.</div>`}
+      </div></section>`:'';
+  $('#sessionLog').innerHTML=officer.session.length?`<div class="card"><h3>This session</h3><div class="tw" style="margin-top:10px"><table><thead><tr><th>Time</th><th>Permit</th><th>Checkpoint</th><th>Result</th></tr></thead><tbody>${officer.session.slice(0,8).map(s=>`<tr><td class="mono">${fmtTime(s.ts)}</td><td class="mono">${esc(s.id)}</td><td>${esc(s.cp)}</td><td><span class="pill ${s.ok?'ok':'bad'}">${s.ok?'Cleared':'Flagged'}</span> <span class="muted">${s.ok?'':esc(s.reason)}</span></td></tr>`).join('')}</tbody></table></div></div>`:'';
+}
+function officerVerify(raw,method){
+  const r=verify(raw,method,officer.checkpoint);
+  officer.result=r;
+  officer.session.unshift({ts:Date.now(),id:r.id||'(blank)',cp:r.checkpoint,ok:r.ok,reason:r.reason});
+  renderOfficerResult();
+  $('#result').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+async function stopScanner(){
+  const s=officer.scanner;officer.scanner=null;
+  if(s){try{await s.stop()}catch(e){}try{s.clear()}catch(e){}}
+}
+function hookOfficer(){
+  renderOfficerResult();
+  $('#cp').onchange=e=>{officer.checkpoint=e.target.value};
+  $('#manualForm').onsubmit=e=>{
+    e.preventDefault();const v=$('#manualId').value;
+    if(!v.trim()){$('#scanMsg').textContent='Enter a permit ID first.';return}
+    officerVerify(v,'Manual');
+  };
+  $('#presentForm').onsubmit=e=>{
+    e.preventDefault();const p=DB.permit($('#presentSel').value);if(!p)return;
+    let over=null;
+    if($('#tamper').checked){const other=DESTINATIONS.find(d=>d!==p.dest);over={dest:other}}
+    officerVerify(qrPayload(p,over),'QR');
+  };
+  $('#qrFile').onchange=async e=>{
+    const f=e.target.files[0];if(!f)return;
+    const msg=$('#scanMsg');msg.textContent='Reading QR image…';
+    try{
+      await stopScanner();
+      const s=new Html5Qrcode('reader');
+      const text=await s.scanFile(f,false);
+      try{s.clear()}catch(_){}
+      msg.textContent='QR read from image.';officerVerify(text,'QR');
+    }catch(err){msg.textContent='No QR code could be read from that image. Try a clearer screenshot or enter the ID.'}
+    e.target.value='';
+  };
+  $('#camBtn').onclick=async()=>{
+    const msg=$('#scanMsg'),btn=$('#camBtn');
+    if(officer.scanner){await stopScanner();btn.textContent='Start camera scanner';msg.textContent='';return}
+    try{
+      const s=new Html5Qrcode('reader');officer.scanner=s;
+      await s.start({facingMode:'environment'},{fps:10,qrbox:{width:220,height:220}},async text=>{
+        await stopScanner();btn.textContent='Start camera scanner';officerVerify(text,'QR');
+      },()=>{});
+      btn.textContent='Stop camera';msg.textContent='Scanning. Hold the QR steady inside the frame.';
+    }catch(err){
+      officer.scanner=null;
+      msg.textContent='The camera is not available in this view. Upload a QR image, present a stored permit, or enter the ID instead.';
+    }
+  };
+}
+
+/* admin */
+let adminQ='',confirmT=null,confirmKey='';
+pages.admin=()=>{
+  const permits=DB.permits(),entries=DB.entries(),flags=DB.flags();
+  const active=permits.filter(p=>statusOf(p)==='active').length;
+  const dest={};permits.forEach(p=>dest[p.dest]=(dest[p.dest]||0)+1);
+  const dRows=Object.entries(dest).sort((a,b)=>b[1]-a[1]);const dMax=Math.max(1,...dRows.map(r=>r[1]));
+  const why={};flags.forEach(f=>{const k=f.reason.replace(/ on \d.*$/,'').replace(/ until .*$/,'').replace(/ \(\+\d+ more\)/,'');why[k]=(why[k]||0)+1});
+  const wRows=Object.entries(why).sort((a,b)=>b[1]-a[1]);const wMax=Math.max(1,...wRows.map(r=>r[1]));
+  return `<div class="page-head"><span class="eyebrow">Administrator</span><h1>Admin dashboard</h1><p>Permits, checkpoint activity and flagged cases, read from this browser's records.</p></div>
+  <div class="stack">
+    ${DB.hasSample()?`<div class="banner"><span>Sample records are loaded so you can see the dashboard working.</span><button class="btn sm" data-act="clearSample" type="button">Clear sample data</button></div>`:''}
+    <div class="grid g4">
+      <div class="stat"><span class="l">Total permits</span><span class="n">${permits.length}</span></div>
+      <div class="stat ok"><span class="l">Active permits</span><span class="n">${active}</span></div>
+      <div class="stat acc"><span class="l">Checkpoint entries</span><span class="n">${entries.length}</span></div>
+      <div class="stat bad"><span class="l">Flagged cases</span><span class="n">${flags.length}</span></div>
+    </div>
+    <div class="card"><h3>Recent checkpoint entries</h3><div style="margin-top:10px">${entries.length?`<div class="tw"><table><thead><tr><th>Time</th><th>Permit</th><th>Traveler</th><th>Destination</th><th>Checkpoint</th><th>Via</th></tr></thead><tbody>${entries.slice(0,10).map(e=>`<tr><td class="mono">${fmtTime(e.ts)}</td><td class="mono">${esc(e.permitId)}</td><td>${esc(e.name)}</td><td>${esc(e.dest)}</td><td>${esc(e.checkpoint)}</td><td>${esc(e.method)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No checkpoint entries yet. Verify a permit in the officer portal.</div>'}</div></div>
+    <div class="card"><h3>Flagged cases</h3><div style="margin-top:10px">${flags.length?`<div class="tw"><table><thead><tr><th>Time</th><th>Permit / submitted</th><th>Reason</th><th>Checkpoint</th><th>Via</th></tr></thead><tbody>${flags.slice(0,12).map(f=>`<tr><td class="mono">${fmtTime(f.ts)}</td><td class="mono">${esc(f.permitId||'(blank)')}</td><td><span class="pill bad">${esc(f.reason)}</span></td><td>${esc(f.checkpoint)}</td><td>${esc(f.method)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No flagged cases.</div>'}</div></div>
+    <div class="grid g2">
+      <div class="card"><h3>Destination overview</h3><div class="bars" style="margin-top:12px">${dRows.length?dRows.map(([k,v])=>`<div class="bar"><span>${esc(k)}</span><span class="track"><span class="fill" style="display:block;width:${v/dMax*100}%"></span></span><b>${v}</b></div>`).join(''):'<div class="empty">No permit data available.</div>'}</div></div>
+      <div class="card"><h3>Why cases were flagged</h3><div class="bars" style="margin-top:12px">${wRows.length?wRows.map(([k,v])=>`<div class="bar"><span>${esc(k)}</span><span class="track"><span class="fill" style="display:block;width:${v/wMax*100}%;background:var(--bad)"></span></span><b>${v}</b></div>`).join(''):'<div class="empty">Nothing flagged.</div>'}</div></div>
+    </div>
+    <div class="card"><div class="row" style="justify-content:space-between"><h3>All permits</h3><div class="field" style="width:min(100%,260px)"><label for="adminQ" class="muted" style="position:absolute;left:-9999px">Search permits</label><input id="adminQ" type="search" placeholder="Search ID, name, destination" value="${esc(adminQ)}"></div></div>
+      <div id="permitTable" style="margin-top:10px"></div></div>
+    <div class="row"><button class="btn danger" data-act="clearAll" type="button">Delete all records</button><span class="hint">Removes permits, entries and flagged cases from this browser.</span></div>
+  </div>`;
+};
+function adminTable(){
+  const q=adminQ.trim().toLowerCase();
+  const list=DB.permits().filter(p=>!q||[p.id,p.name,p.dest,p.vehicle,p.purpose].join(' ').toLowerCase().includes(q));
+  $('#permitTable').innerHTML=list.length?`<div class="tw"><table><thead><tr><th>Permit ID</th><th>Traveler</th><th>Gov. ID</th><th>Vehicle</th><th>Destination</th><th>Valid</th><th>Status</th></tr></thead><tbody>${list.map(p=>{const s=statusOf(p);return `<tr><td class="mono"><a href="#${esc(p.id)}" data-go="${esc(p.id)}">${esc(p.id)}</a></td><td>${esc(p.name)}${p.sample?' <span class="pill mute">Sample</span>':''}</td><td class="mono">${esc(maskId(p.gid))}</td><td class="mono">${esc(p.vehicle)}</td><td>${esc(p.dest)}</td><td class="mono">${esc(p.from)} → ${esc(p.to)}</td><td><span class="pill ${{active:'ok',expired:'bad',upcoming:'warn'}[s]}">${s}</span></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">No permits match.</div>';
+}
+
+pages.about=()=>`
+  <div class="page-head"><span class="eyebrow">About the project</span><h1>TN-TravelGuard</h1><p>A smart digital permit and checkpoint verification system for Tamil Nadu. Design Project 3 (ECS51803), B.Tech Computer Science and Engineering, Hindustan Institute of Technology and Science, Chennai.</p></div>
+  <div class="stack">
+    <div class="grid g2">
+      <div class="card"><h3>The problem</h3><ul class="muted" style="padding-left:18px;margin:8px 0 0;display:grid;gap:6px">
+        <li>Manual verification is slow and prone to human error.</li><li>Paper records are hard to retrieve and maintain.</li><li>Invalid, expired or repeated permits are hard to spot consistently.</li><li>Without organised digital records, monitoring and reporting are limited.</li></ul></div>
+      <div class="card"><h3>Objectives</h3><ul class="muted" style="padding-left:18px;margin:8px 0 0;display:grid;gap:6px">
+        <li>Online traveler registration</li><li>Unique permit ID and QR code for each traveler</li><li>Checkpoint verification by QR scan or manual ID</li><li>Validation of permit details and validity dates</li><li>Duplicate detection at the same checkpoint</li><li>Checkpoint records, flagged cases and an admin dashboard</li></ul></div>
+    </div>
+    <div class="card"><h3>Layered architecture</h3>
+      <div class="layers" style="margin-top:12px">
+        <div class="layer"><b>Traveler interface</b><span>Registration form, digital permit page with QR code.</span></div>
+        <div class="layer"><b>Officer interface</b><span>QR scanning, manual permit ID entry, verification result.</span></div>
+        <div class="layer"><b>Application logic</b><span>Permit ID generation, QR generation, permit lookup and validation, duplicate detection.</span></div>
+        <div class="layer"><b>Administrative dashboard</b><span>Permit summaries, checkpoint activity, flagged-case review.</span></div>
+        <div class="layer"><b>Local storage</b><span>Permit records, checkpoint entries and flagged cases as JSON in the browser.</span></div>
+      </div></div>
+    <div class="card"><h3>Data collections</h3><div class="tw" style="margin-top:12px"><table><thead><tr><th>Collection</th><th>Main information</th><th>Purpose</th></tr></thead><tbody>
+      <tr><td>Permit records</td><td>Permit ID, name, phone, government ID, vehicle, destination, purpose, validity dates, demo identity status</td><td>Display and verify a permit</td></tr>
+      <tr><td>Checkpoint entries</td><td>Permit ID, checkpoint, entry details</td><td>Successful verifications for review</td></tr>
+      <tr><td>Flagged cases</td><td>Submitted ID, reason, attempt details</td><td>Invalid, mismatched, expired or duplicate attempts</td></tr>
+      <tr><td>QR payload</td><td>Permit ID, traveler name, destination</td><td>Compared with the stored record during a scan</td></tr></tbody></table></div></div>
+    <div class="card"><h3>Technology</h3>
+      <div class="grid g3" style="margin-top:12px">
+        <div><b>Original prototype</b><p class="muted">Next.js, React, TypeScript and Tailwind CSS, with the qrcode and html5-qrcode libraries and browser local storage.</p></div>
+        <div><b>This website</b><p class="muted">Plain HTML, CSS and JavaScript with the same qrcode and html5-qrcode libraries and the same local-storage model.</p></div>
+        <div><b>Tested outcomes</b><p class="muted">Valid permit verified and recorded. Unknown ID rejected and flagged. Repeat at the same checkpoint detected. Manual lookup works. ID and QR displayed after registration.</p></div>
+      </div></div>
+    <div><div class="page-head" style="margin-bottom:12px"><span class="eyebrow">Implementation roadmap</span><h2>Six phases</h2></div>
+      <div class="phases">
+        <div class="phase"><span class="eyebrow">Phase 1</span><h3>Planning</h3><p>Define objectives and requirements, design architecture and user workflow.</p></div>
+        <div class="phase"><span class="eyebrow">Phase 2</span><h3>Registration</h3><p>Build the traveler form and collect permit and travel details.</p></div>
+        <div class="phase"><span class="eyebrow">Phase 3</span><h3>Digital permit</h3><p>Generate unique permit IDs and display details with QR codes.</p></div>
+        <div class="phase"><span class="eyebrow">Phase 4</span><h3>Checkpoint verification</h3><p>QR scanning and manual lookup, validity and detail checks.</p></div>
+        <div class="phase"><span class="eyebrow">Phase 5</span><h3>Record management</h3><p>Store entries and flagged attempts, detect duplicates.</p></div>
+        <div class="phase"><span class="eyebrow">Phase 6</span><h3>Dashboard and testing</h3><p>Test valid permits, invalid IDs and duplicates. Refine usability.</p></div>
+      </div></div>
+    <div class="grid g2">
+      <div class="card"><h3>Limits of the prototype</h3><p class="muted" style="margin-top:6px">Local storage is not a secure database. Records can be edited with browser tools and are not shared across devices. The QR payload is plain text, not a signed token, so it does not resist deliberate tampering. No biometric or government database check is performed.</p></div>
+      <div class="card"><h3>Future scope</h3><ul class="muted" style="padding-left:18px;margin:8px 0 0;display:grid;gap:6px"><li>Centralised database such as PostgreSQL or MongoDB</li><li>Digitally signed QR codes</li><li>Real-time analytics across checkpoints</li><li>Secure authentication and audit logging</li></ul></div>
+    </div>
+    <div class="card"><h3>Credits</h3><p class="muted" style="margin-top:6px">Submitted by Mourya Tanusri S (24CU0310051), B.Tech CSE 5A. Guided by Dr. MageshBabu, Assistant Professor (SG). Head of Department: Dr. T. Sudalai Muthu. Academic year 2026–2027.</p></div>
+  </div>`;
+
+/* ---------- router ---------- */
+let current=null;
+const ROUTES=['home','apply','permits','officer','admin','about'];
+function show(r,force){
+  r=r||'home';
+  if(r===current&&!force)return;
+  current=r;
+  stopScanner();
+  const v=$('#view');
+  const isPermit=/^TN-\d{4}-\d{5}$/.test(r);
+  if(isPermit)v.innerHTML=pages.permit(r);
+  else if(ROUTES.includes(r))v.innerHTML=pages[r]();
+  else{r='home';current='home';v.innerHTML=pages.home()}
+  $$('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.go===r||(isPermit&&a.dataset.go==='permits')));
+  drawQRs(v);
+  if(r==='apply')hookApply();
+  if(r==='officer')hookOfficer();
+  if(r==='admin')adminTable();
+  window.scrollTo(0,0);
+}
+function go(r){
+  try{if(location.hash.slice(1)!==r)location.hash=r}catch(e){}
+  show(r);
+}
+window.addEventListener('hashchange',()=>show(location.hash.slice(1)));
+
+document.addEventListener('click',e=>{
+  const a=e.target.closest('[data-go]');
+  if(a){e.preventDefault();go(a.dataset.go);return}
+  const c=e.target.closest('[data-copy]');
+  if(c){copy(c.dataset.copy,c.dataset.label);return}
+  const act=e.target.closest('[data-act]');
+  if(act){
+    const k=act.dataset.act;
+    if(k==='clearSample'){DB.clear(true);toast('Sample data cleared');show('admin',true)}
+    if(k==='clearAll'){
+      if(confirmKey===k){clearTimeout(confirmT);confirmKey='';DB.clear(false);toast('All records deleted');show('admin',true)}
+      else{confirmKey=k;act.textContent='Click again to confirm';clearTimeout(confirmT);confirmT=setTimeout(()=>{confirmKey='';act.textContent='Delete all records'},4000)}
+    }
+  }
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='adminQ'){adminQ=e.target.value;adminTable()}
+});
+
+/* apply form */
+function hookApply(){
+  const f=$('#applyForm');
+  f.addEventListener('submit',e=>{
+    e.preventDefault();
+    const g=n=>f.elements[n].value.trim();
+    const v={name:g('name'),phone:g('phone'),gid:g('gid'),vehicle:g('vehicle').toUpperCase().replace(/\s+/g,' '),dest:g('dest'),purpose:g('purpose'),from:g('from'),to:g('to')};
+    const er={};
+    if(v.name.length<3||!/^[A-Za-z .'-]+$/.test(v.name))er.name='Enter the full name using letters only.';
+    if(!/^[6-9]\d{9}$/.test(v.phone))er.phone='Enter a 10-digit mobile number starting with 6, 7, 8 or 9.';
+    if(!/^[A-Za-z0-9-]{6,20}$/.test(v.gid))er.gid='Enter 6 to 20 letters or digits.';
+    if(!/^[A-Z]{2}\s?\d{1,2}\s?[A-Z]{1,3}\s?\d{4}$/.test(v.vehicle))er.vehicle='Use the format TN 01 AB 1234.';
+    if(!v.dest)er.dest='Select a destination.';
+    if(!v.purpose)er.purpose='Select a purpose.';
+    if(!v.from)er.from='Choose a start date.';
+    if(!v.to)er.to='Choose an end date.';
+    else if(v.from&&v.to<v.from)er.to='The end date must be on or after the start date.';
+    else if(v.to<today())er.to='The end date cannot be in the past.';
+    $$('.err',f).forEach(x=>x.textContent=er[x.dataset.e]||'');
+    ['name','phone','gid','vehicle','dest','purpose','from','to'].forEach(n=>f.elements[n].classList.toggle('bad',!!er[n]));
+    const first=Object.keys(er)[0];
+    if(first){f.elements[first].focus();return}
+    const hasSelfie=f.elements.selfie.files&&f.elements.selfie.files.length>0;
+    const p={id:newId(),...v,idStatus:hasSelfie?'Selfie attached (demo)':'ID number on record (demo)',createdAt:Date.now()};
+    DB.savePermit(p);
+    toast('Permit '+p.id+' issued');
+    go(p.id);
+  });
+}
+
+/* theme */
+(function(){
+  const root=document.documentElement;
+  try{const t=localStorage.getItem('tg:theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+  $('#themeBtn').onclick=()=>{
+    const cur=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
+    const next=cur==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem('tg:theme',next)}catch(e){}
+  };
+})();
+
+seed();
+show(location.hash.slice(1)||'home',true);
+</script>
+
+</body></html>
